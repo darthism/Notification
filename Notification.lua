@@ -14,6 +14,7 @@ local Boilerplate = NotificationsUI:WaitForChild("Boilerplate")
 local MetaDatasInstance = script:WaitForChild("Metadata")
 local MAX_NOTIFICATIONS = 5
 local DISAPPEAR_TIME = 7
+local SHIFT_UP_TIME = 1
 local MetaDatas = nil
 local function InstanceToHierarchy(Instance)
 	local Hierarchy = {}
@@ -56,6 +57,29 @@ function Module._GetIndexFromQueue(Path)
 	end
 	return Index
 end
+function Module._ShiftNotifications(IsDown)
+	local Sign = IsDown and 1 or -1
+	while true do
+		for _, Notification in VisibleNotifications do
+			local CurrentPosition = Notification.Position
+			Notification.Position = UDim2.new(CurrentPosition.X.Scale, 0, CurrentPosition.Y.Scale + BoilerplateSize.Y.Scale * Sign, 0)
+		end
+		if IsDown then
+			if #VisibleNotifications == MAX_NOTIFICATIONS then
+				local Removed = table.remove(VisibleNotifications, 1)
+				Removed:Destroy()
+			end
+			break
+		else
+			local Removed = table.remove(VisibleNotifications, #VisibleNotifications)
+			Removed:Destroy()
+			task.wait(SHIFT_UP_TIME)
+			if JustNotified or not next(VisibleNotifications) then
+				break
+			end
+		end
+	end
+end
 function Module.DisplayNotification(Path, ...)
 	local Formatters = {...}
 	local Metadata = GetFromPath(MetaDatas, Path)
@@ -85,20 +109,14 @@ function Module.DisplayNotification(Path, ...)
 		Clone.TextColor3 = Metadata.Color
 		Clone.TextTransparency = 0
 		Clone.Parent = NotificationsUI
-		for _, Notification in VisibleNotifications do
-			local CurrentPosition = Notification.Position
-			Notification.Position = UDim2.new(CurrentPosition.X.Scale, 0, CurrentPosition.Y.Scale + BoilerplateSize.Y.Scale, 0)
-		end
-		if #VisibleNotifications == MAX_NOTIFICATIONS then
-			local Removed = table.remove(VisibleNotifications, 1)
-			Removed:Destroy()
-		end
+		Module._ShiftNotifications(true)
 		table.insert(VisibleNotifications, Clone)
 		JustNotified = true
 		NumberOfNotifications += 1
 	end
 end
 local Clock = os.clock()
+local Flag = true
 RunService.Heartbeat:Connect(function()
 	local Head = Queue[1]
 	if Head and not NotificationDebounce:IsOnCooldown() then
@@ -108,13 +126,10 @@ RunService.Heartbeat:Connect(function()
 		JustNotified = false
 		Clock = os.clock()
 	end
-	if os.clock() - Clock > DISAPPEAR_TIME then
-		local Size = #VisibleNotifications
-		local Tail = VisibleNotifications[Size]
-		if Tail then
-			local Removed = table.remove(VisibleNotifications, Size)
-			Removed:Destroy()
-		end
+	if os.clock() - Clock > DISAPPEAR_TIME and next(VisibleNotifications) and Flag then
+		Flag = false
+		Module._ShiftNotifications(false)
+		Flag = true
 	end
 end)
 return Module
