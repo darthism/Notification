@@ -4,12 +4,12 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local Utilities = ReplicatedStorage
-					:WaitForChild("Shared")
-					:WaitForChild("Utilities")
+				:WaitForChild("Shared")
+				:WaitForChild("Utilities")
 local Debounce = require(Utilities:WaitForChild("Debounce"))
 local NotificationsUI = LocalPlayer
-							:WaitForChild("PlayerGui")
-							:WaitForChild("Notifications")
+				:WaitForChild("PlayerGui")
+				:WaitForChild("Notifications")
 local Boilerplate = NotificationsUI:WaitForChild("Boilerplate")
 local MetaDatasInstance = script:WaitForChild("Metadata")
 local MAX_NOTIFICATIONS = 5
