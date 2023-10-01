@@ -21,10 +21,8 @@ local function InstanceToHierarchy(Instance)
 	for _, Child in Instance:GetChildren() do
 		if next(Child:GetChildren()) then
 			Hierarchy[Child.Name] = InstanceToHierarchy(Child)
-		else
-			if Child:IsA("ModuleScript") then
-				Hierarchy[Child.Name] = require(Child)
-			end
+		elseif Child:IsA("ModuleScript") then
+			Hierarchy[Child.Name] = require(Child)
 		end
 	end
 	return Hierarchy
