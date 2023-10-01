@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local Utilities = ReplicatedStorage
-                    :WaitForChild("Shared")
+                    :WaitForChild("Shared"
                     :WaitForChild("Utilities")
 local Debounce = require(Utilities:WaitForChild("Debounce"))
 local NotificationsUI = LocalPlayer
