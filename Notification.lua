@@ -24,8 +24,6 @@ local function InstanceToHierarchy(Instance)
 		else
 			if Child:IsA("ModuleScript") then
 				Hierarchy[Child.Name] = require(Child)
-			else
-				Hierarchy[Child.Name] = Child
 			end
 		end
 	end
