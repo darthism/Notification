@@ -52,7 +52,6 @@ local function GetFromPath(Table, Path)
 end
 MetaDatas = InstanceToHierarchy(MetaDatasInstance)
 local IsMergable = IsMetadataMergable(MetaDatas)
-print(IsMergable)
 local BoilerplatePosition = Boilerplate.Position
 local BoilerplateSize = Boilerplate.Size
 local Queue = {}
