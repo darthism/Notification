@@ -83,7 +83,7 @@ function Module.DisplayNotification(Path, ...)
 	local Metadata = GetFromPath(MetaDatas, Path)
 	if NotificationDebounce:IsOnCooldown() then
 		local Index = Module._GetIndexFromQueue(Path)
-		if Index then
+		if Index and Metadata.MergeFormatters then
 			local Object = Queue[Index]
 			Object.Formatters = Metadata.MergeFormatters(Object.Formatters, Formatters)
 		else
