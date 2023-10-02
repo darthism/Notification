@@ -40,7 +40,6 @@ local BoilerplatePosition = Boilerplate.Position
 local BoilerplateSize = Boilerplate.Size
 local Queue = {}
 local NotificationDebounce = Debounce.new(0.25)
-local NumberOfNotifications = 0
 local JustNotified = false
 local ShouldResetClock = true
 local VisibleNotifications = {}
@@ -112,7 +111,6 @@ function Module.DisplayNotification(Path, ...)
 		table.insert(VisibleNotifications, Clone)
 		JustNotified = true
 		ShouldResetClock = true
-		NumberOfNotifications += 1
 	end
 end
 local Clock = os.clock()
