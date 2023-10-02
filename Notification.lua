@@ -70,9 +70,8 @@ function Module._ShiftNotifications(IsDisplay)
 		else
 			local Removed = table.remove(VisibleNotifications, #VisibleNotifications)
 			Removed:Destroy()
-			print("LMAO")
 			task.wait(SHIFT_UP_TIME)
-			FlagTwo = true
+			ShouldResetClock = true
 			if JustNotified or not next(VisibleNotifications) then
 				JustNotified = false
 				break
