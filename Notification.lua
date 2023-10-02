@@ -116,11 +116,6 @@ function Module.DisplayNotification(Path, ...)
 			Flag = true
 		end
 	else
-		table.insert(Queue, {
-			Formatters = Formatters,
-			Message = Metadata.Message,
-			Path = Path, 
-		})
 		Flag = true
 	end
 	if Flag then
