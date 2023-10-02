@@ -13,7 +13,7 @@ local NotificationsUI = LocalPlayer
 local Boilerplate = NotificationsUI:WaitForChild("Boilerplate")
 local MetaDatasInstance = script:WaitForChild("Metadata")
 local MAX_NOTIFICATIONS = 5
-local DISAPPEAR_TIME = 7
+local DISAPPEAR_TIME = 3
 local SHIFT_UP_TIME = 1
 local MetaDatas = nil
 local function InstanceToHierarchy(Instance)
@@ -42,6 +42,7 @@ local Queue = {}
 local NotificationDebounce = Debounce.new(0.25)
 local NumberOfNotifications = 0
 local JustNotified = false
+local ShouldResetClock = true
 local VisibleNotifications = {}
 local Module = {}
 function Module._GetIndexFromQueue(Path)
@@ -53,14 +54,14 @@ function Module._GetIndexFromQueue(Path)
 	end
 	return Index
 end
-function Module._ShiftNotifications(IsDown)
-	local Sign = IsDown and 1 or -1
+function Module._ShiftNotifications(IsDisplay)
+	local Sign = IsDisplay and 1 or -1
 	while true do
 		for _, Notification in VisibleNotifications do
 			local CurrentPosition = Notification.Position
 			Notification.Position = UDim2.new(CurrentPosition.X.Scale, 0, CurrentPosition.Y.Scale + BoilerplateSize.Y.Scale * Sign, 0)
 		end
-		if IsDown then
+		if IsDisplay then
 			if #VisibleNotifications == MAX_NOTIFICATIONS then
 				local Removed = table.remove(VisibleNotifications, 1)
 				Removed:Destroy()
@@ -69,8 +70,11 @@ function Module._ShiftNotifications(IsDown)
 		else
 			local Removed = table.remove(VisibleNotifications, #VisibleNotifications)
 			Removed:Destroy()
+			print("LMAO")
 			task.wait(SHIFT_UP_TIME)
+			FlagTwo = true
 			if JustNotified or not next(VisibleNotifications) then
+				JustNotified = false
 				break
 			end
 		end
@@ -108,6 +112,7 @@ function Module.DisplayNotification(Path, ...)
 		Module._ShiftNotifications(true)
 		table.insert(VisibleNotifications, Clone)
 		JustNotified = true
+		ShouldResetClock = true
 		NumberOfNotifications += 1
 	end
 end
@@ -118,10 +123,11 @@ RunService.Heartbeat:Connect(function()
 	if Head and not NotificationDebounce:IsOnCooldown() then
 		Module.DisplayNotification(Head.Path)
 	end
-	if JustNotified then
-		JustNotified = false
+	if JustNotified and ShouldResetClock then
+		ShouldResetClock = false
 		Clock = os.clock()
 	end
+	print(DISAPPEAR_TIME - (os.clock() -  Clock))
 	if os.clock() - Clock > DISAPPEAR_TIME and next(VisibleNotifications) and Flag then
 		Flag = false
 		Module._ShiftNotifications(false)
