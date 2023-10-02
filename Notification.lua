@@ -27,6 +27,21 @@ local function InstanceToHierarchy(Instance)
 	end
 	return Hierarchy
 end
+local function IsMetadataMergable(MetadataTable)
+	local IsMergable = false
+	for _, Value in MetadataTable do
+		if type(Value) == "table" then
+			if Value.MergeFormatters then
+				IsMergable = true
+			end
+			print(Value)
+			if not IsMergable then
+				IsMergable = IsMetadataMergable(Value)
+			end	
+		end
+	end
+	return IsMergable
+end
 local function GetFromPath(Table, Path)
 	local Split = string.split(Path, "/")
 	local Temp = Table
@@ -36,6 +51,8 @@ local function GetFromPath(Table, Path)
 	return Temp
 end
 MetaDatas = InstanceToHierarchy(MetaDatasInstance)
+local IsMergable = IsMetadataMergable(MetaDatas)
+print(IsMergable)
 local BoilerplatePosition = Boilerplate.Position
 local BoilerplateSize = Boilerplate.Size
 local Queue = {}
@@ -81,19 +98,32 @@ end
 function Module.DisplayNotification(Path, ...)
 	local Formatters = {...}
 	local Metadata = GetFromPath(MetaDatas, Path)
-	if NotificationDebounce:IsOnCooldown() then
-		local Index = Module._GetIndexFromQueue(Path)
-		if Index and Metadata.MergeFormatters then
-			local Object = Queue[Index]
-			Object.Formatters = Metadata.MergeFormatters(Object.Formatters, Formatters)
+	local Flag = false
+	if IsMergable then
+		if NotificationDebounce:IsOnCooldown() then
+			local Index = Module._GetIndexFromQueue(Path)
+			if Index and Metadata.MergeFormatters then
+				local Object = Queue[Index]
+				Object.Formatters = Metadata.MergeFormatters(Object.Formatters, Formatters)
+			else
+				table.insert(Queue, {
+					Formatters = Formatters,
+					Message = Metadata.Message,
+					Path = Path, 
+				})
+			end
 		else
-			table.insert(Queue, {
-				Formatters = Formatters,
-				Message = Metadata.Message,
-				Path = Path, 
-			})
+			Flag = true
 		end
 	else
+		Flag = true
+		table.insert(Queue, {
+			Formatters = Formatters,
+			Message = Metadata.Message,
+			Path = Path, 
+		})
+	end
+	if Flag then
 		NotificationDebounce:Activate()
 		local ToDisplayWrapper = table.remove(Queue, 1)
 		ToDisplayWrapper = ToDisplayWrapper or {
@@ -124,7 +154,7 @@ RunService.Heartbeat:Connect(function()
 		ShouldResetClock = false
 		Clock = os.clock()
 	end
-	print(DISAPPEAR_TIME - (os.clock() -  Clock))
+	-- print(DISAPPEAR_TIME - (os.clock() -  Clock))
 	if os.clock() - Clock > DISAPPEAR_TIME and next(VisibleNotifications) and Flag then
 		Flag = false
 		Module._ShiftNotifications(false)
