@@ -34,7 +34,6 @@ local function IsMetadataMergable(MetadataTable)
 			if Value.MergeFormatters then
 				IsMergable = true
 			end
-			print(Value)
 			if not IsMergable then
 				IsMergable = IsMetadataMergable(Value)
 			end	
@@ -118,7 +117,9 @@ function Module.DisplayNotification(Path, ...)
 		Flag = true
 	end
 	if Flag then
-		NotificationDebounce:Activate()
+		if IsMergable then
+			NotificationDebounce:Activate()		
+		end
 		local ToDisplayWrapper = table.remove(Queue, 1)
 		ToDisplayWrapper = ToDisplayWrapper or {
 			Formatters = Formatters,
