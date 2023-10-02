@@ -141,9 +141,11 @@ end
 local Clock = os.clock()
 local Flag = true
 RunService.Heartbeat:Connect(function()
-	local Head = Queue[1]
-	if Head and not NotificationDebounce:IsOnCooldown() then
-		Module.DisplayNotification(Head.Path)
+	if IsMetadataMergable then
+		local Head = Queue[1]
+		if Head and not NotificationDebounce:IsOnCooldown() then
+			Module.DisplayNotification(Head.Path)
+		end	
 	end
 	if JustNotified and ShouldResetClock then
 		ShouldResetClock = false
